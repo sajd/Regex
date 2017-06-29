@@ -1,16 +1,19 @@
 package regex;
 
 import org.junit.Test;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import junitparams.*;
 import static org.junit.Assert.*;
 
 @RunWith(JUnitParamsRunner.class)
 public class TestMatcher {
-	
-	@Test
-	@Parameters(method = "literalParams")
-	public void findLiteral(String pattern, String text, String[] expected) {
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
+	private void helper(String pattern, String text, String[] expected) {
 		Regex reg = new Regex(pattern);
 		Search search = new Search(reg, text);
 		for (String e : expected) {
@@ -18,6 +21,39 @@ public class TestMatcher {
 			assertEquals(e, search.getResult());
 		}
 		assertFalse(search.find());
+	}
+	
+	@Test
+	@Parameters(method = "literalParams")
+	public void findLiteral(String pattern, String text, String[] expected) {
+		helper(pattern, text, expected);
+	}
+
+	@Test
+	@Parameters(method = "escapedParams")
+	public void findEscaped(String pattern, String text, String[] expected) {
+		helper(pattern, text, expected);
+	}
+
+	@Test
+	public void missingEscapeChar() {
+		thrown.expect(InvalidRegexException.class);
+		thrown.expectMessage("missing character after '\\'");
+		Regex r = new Regex("abc\\");
+	}
+	
+	@Test
+	public void missingEscapeQ() {
+		thrown.expect(InvalidRegexException.class);
+		thrown.expectMessage("missing '\\Q' before '\\E'");
+		Regex r = new Regex("a\\\\Q\\E");
+	}
+
+	@Test
+	public void nestedEscape() {
+		thrown.expect(InvalidRegexException.class);
+		thrown.expectMessage("missing '\\Q' before '\\E'");
+		Regex r = new Regex("\\Qab\\Q*\\E*\\E");
 	}
 
 	public Object[] literalParams() {
@@ -48,4 +84,49 @@ public class TestMatcher {
 				          new String[] {"asd\000asd", "asd\000asd"}}};
 	}
 
+
+	public Object[] escapedParams() {
+		return new Object[] {
+			new Object[] {"\\\\", "\\a\\a\\\\",
+				new String[] {"\\", "\\", "\\", "\\"}},
+			/*
+			new Object[] {"\\^", "a^^",
+				new String[] {"^", "^"}},
+			new Object[] {"\\$", "$$",
+				new String[] {"$", "$"}},
+			new Object[] {"\\.", ".",
+				new String[] {"."}},
+			new Object[] {"\\|", "ab\n|c",
+				new String[] {"|"}},
+			new Object[] {"\\?", "a ? b ?",
+				new String[] {"?", "?"}},
+			new Object[] {"\\*", "* 23*",
+				new String[] {"*", "*"}},
+			new Object[] {"\\+\\+", "+ ++ +",
+				new String[] {"++"}},
+			new Object[] {"\\(", "()",
+				new String[] {"("}},
+			new Object[] {"\\)", "()",
+				new String[] {")"}},
+			new Object[] {"\\[", "({[ [ab",
+				new String[] {"[", "["}},
+			new Object[] {"\\{", "\\{",
+				new String[] {"{"}},
+			*/
+			new Object[] {"\\Q\\E", "\\Q\\EQE",
+				new String[] {}},
+			new Object[] {"\\Q", "\\Q",
+				new String[] {}},
+			new Object[] {"\\Q\\^$.|?\\Q\\na\\E", "Q\\^$.|?\\Q\\naE",
+				new String[] {"\\^$.|?\\Q\\na"}},
+			new Object[] {"\\Qabc", "cbabc",
+				new String[] {"abc"}},
+			new Object [] {"\\Q\\Q\\E.\\Q.\\E", "b\\Qa.b",
+				new String[] {"\\Qa."}},
+			new Object [] {"\\Q\\Q\\E.\\Q.\\E", "\\Q\\E.\\Q..",
+				new String[] {"\\Q.."}},
+			new Object [] {"\\Q*\\E", "\\Qabc\\E QabcE Q*E \\Q*\\E",
+				new String[] {"*", "*"}}
+		};
+	}
 }
