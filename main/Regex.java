@@ -24,7 +24,7 @@ public class Regex {
 
 	/* Searches text for the regular expression beginning at index START.
 	 * Returns the index up to which a match was found, and -1 if no match was found. */
-	public int find (char[] text, int start) {
+	int find (char[] text, int start) {
 		if (start < 0)
 			throw new IllegalArgumentException("negative start index");
 
