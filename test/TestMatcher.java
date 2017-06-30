@@ -1,5 +1,6 @@
 package regex;
 
+import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -16,11 +17,10 @@ public class TestMatcher {
 	private void helper(String pattern, String text, String[] expected) {
 		Regex reg = new Regex(pattern);
 		Search search = new Search(reg, text);
-		for (String e : expected) {
-			assertTrue(search.find());
-			assertEquals(e, search.getResult());
-		}
-		assertFalse(search.find());
+		ArrayList<String> actual = new ArrayList<String>();
+		while(search.find())
+			actual.add(search.getResult());
+		assertArrayEquals(expected, actual.toArray(new String[]{}));
 	}
 	
 	@Test
