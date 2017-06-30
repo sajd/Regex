@@ -7,19 +7,7 @@ public class Regex {
 	private ArrayList<Matcher> matchers;	// pieces of the regex
 	
 	public Regex(String pattern) throws InvalidRegexException{
-		matchers = Matcher.parse(tokenize(pattern));
-	}
-
-	/* RETURNS an ArrayList of tokens that represent the input PATTERN. */
-	private ArrayList<Token> tokenize (String pattern) throws InvalidRegexException{
-		ArrayList<Token> tokens = new ArrayList<Token>();
-
-		for (int i = 0; i < pattern.length(); i++) {
-			Token tok = new Token(pattern.charAt(i));
-			tokens.add(tok);
-		}
-
-		return tokens;
+		matchers = Matcher.parse(Token.tokenize(pattern));
 	}
 
 	/* Searches text for the regular expression beginning at index START.
