@@ -126,7 +126,9 @@ public class TestMatcher {
 			new Object [] {"\\Q\\Q\\E.\\Q.\\E", "\\Q\\E.\\Q..",
 				new String[] {"\\Q.."}},
 			new Object [] {"\\Q*\\E", "\\Qabc\\E QabcE Q*E \\Q*\\E",
-				new String[] {"*", "*"}}
+				new String[] {"*", "*"}},
+			new Object [] {"\\Q*\\\\E", "Q *\\E * E",
+				new String[] {"*\\"}}
 		};
 	}
 }
