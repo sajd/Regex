@@ -36,24 +36,23 @@ public class TestMatcher {
 	}
 
 	@Test
-	public void missingEscapeChar() {
+	@Parameters(method = "invalidParams")
+	public void invalidPatterns(String pattern, String message) {
 		thrown.expect(InvalidRegexException.class);
-		thrown.expectMessage("missing character after '\\'");
-		Regex r = new Regex("abc\\");
-	}
-	
-	@Test
-	public void missingEscapeQ() {
-		thrown.expect(InvalidRegexException.class);
-		thrown.expectMessage("missing '\\Q' before '\\E'");
-		Regex r = new Regex("a\\\\Q\\E");
+		thrown.expectMessage(message);
+		Regex r = new Regex(pattern);
 	}
 
-	@Test
-	public void nestedEscape() {
-		thrown.expect(InvalidRegexException.class);
-		thrown.expectMessage("missing '\\Q' before '\\E'");
-		Regex r = new Regex("\\Qab\\Q*\\E*\\E");
+	public Object[] invalidParams() {
+		return new Object[] {
+			new Object[] {"abc\\", "missing character after '\\'"},
+			new Object[] {"a\\\\Q\\E", "missing '\\Q' before '\\E'"},
+			new Object[] {"\\Qab\\Q*\\E*\\E", "missing '\\Q' before '\\E'"},
+			new Object[] {"\\08", "invalid octal value"},
+			new Object[] {"\\xfg", "invalid hexadecimal value"},
+			new Object[] {"\\ufffg", "invalid hexadecimal value"},
+			new Object[] {"\\u\\1111", "invalid hexadecimal value"}
+		};
 	}
 
 	public Object[] literalParams() {
@@ -89,7 +88,46 @@ public class TestMatcher {
 		return new Object[] {
 			new Object[] {"\\\\", "\\a\\a\\\\",
 				new String[] {"\\", "\\", "\\", "\\"}},
-			/*
+			new Object[] {"\\00", "\000 \000\000  \000",
+				new String[] {"\000", "\000", "\000", "\000"}},
+			new Object[] {"\\07", "\007 \007\007  \007",
+				new String[] {"\007", "\007", "\007", "\007"}},
+			new Object[] {"\\008", "\010 \\008 \0008",
+				new String[] {"\0008"}},
+			new Object[] {"\\024", "\024\024 \024 \024",
+				new String[] {"\024", "\024", "\024", "\024"}},
+			new Object[] {"\\0377", "\377 \377 \377\377",
+				new String[] {"\377", "\377", "\377", "\377"}},
+			new Object[] {"\\0400", "\0400 \0400 \u0100  \0400", 
+				new String[] {"\0400", "\0400", "\0400"}},
+			new Object[] {"\\x00", "\000 \000\000  \000",
+				new String[] {"\000", "\000", "\000", "\000"}},
+			new Object[] {"\\xFF", "\u00ff\uff00 \u00ff \u00ff\u00ff",
+				new String[] {"\u00ff", "\u00ff", "\u00ff", "\u00ff"}},
+			new Object[] {"\\xff", "\u00ff\uff00 \u00ff \u00ff\u00ff",
+				new String[] {"\u00ff", "\u00ff", "\u00ff", "\u00ff"}},
+			new Object[] {"\\u00000", "\u00000 \u00000000 \u00000",
+				new String[] {"\u00000", "\u00000", "\u00000"}}, 
+			new Object[] {"\\uffff0", "\uffff0 \uffff0000 \uffff0",
+				new String[] {"\uffff0", "\uffff0", "\uffff0"}}, 
+			new Object[] {"\\uFFFF0", "\uFFFF0 \uFFFF0000 \uFFFF0",
+				new String[] {"\uFFFF0", "\uFFFF0", "\uFFFF0"}}, 
+
+			new Object[] {"\\t\\t", "\t\t \\t\\t\t\t \t\t",
+				new String[] {"\t\t", "\t\t", "\t\t"}},
+			new Object[] {"\\t\\n", "\t\n \t\n\t\n \t\n",
+				new String[] {"\t\n", "\t\n", "\t\n", "\t\n"}},
+			new Object[] {"\\r", "\r \n\r\n \r",
+				new String[] {"\r", "\r", "\r"}},
+			new Object[] {"\\f", "\f\f \f ff\r\n\f",
+				new String[] {"\f", "\f", "\f", "\f"}},
+			new Object[] {"\\a", "\u0007 \u0007 \u0007",
+				new String[] {"\u0007", "\u0007", "\u0007"}},
+			new Object[] {"\\e", "\u001b",
+				new String[] {"\u001b"}},
+			new Object[] {"\\e", "\u001b \u001b \u001b",
+				new String[] {"\u001b", "\u001b", "\u001b"}},
+			
 			new Object[] {"\\^", "a^^",
 				new String[] {"^", "^"}},
 			new Object[] {"\\$", "$$",
@@ -112,7 +150,7 @@ public class TestMatcher {
 				new String[] {"[", "["}},
 			new Object[] {"\\{", "\\{",
 				new String[] {"{"}},
-			*/
+			
 			new Object[] {"\\Q\\E", "\\Q\\EQE",
 				new String[] {}},
 			new Object[] {"\\Q", "\\Q",
