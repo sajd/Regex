@@ -50,7 +50,54 @@ class Literal extends Matcher{
 
 	public String toString () {
 		StringBuilder temp = new StringBuilder();
-		temp.append(chars);
+		for (char c : chars) {
+			switch(c) {
+				case '\t':
+					temp.append("\\t");
+					break;
+				case '\n':
+					temp.append("\\n");
+					break;
+				case '\r':
+					temp.append("\\r");
+					break;
+				case '\f':
+					temp.append("\\f");
+					break;
+				case '\u0007':
+					temp.append("\\a");
+					break;
+				case '\u001B':
+					temp.append("\\e");
+					break;
+				case '\\':
+				case '^':
+				case '$':
+				case '.':
+				case '|':
+				case '?':
+				case '*':
+				case '+':
+				case '(':
+				case ')':
+				case '[':
+				case ']':
+				case '{':
+				case '}':
+					temp.append('\\');
+					temp.append(c);
+					break;
+				default:
+					if (Character.isWhitespace(c) && c != ' ') {
+						String str = Integer.toHexString((int)c);
+						while (str.length() < 4)
+							str = "0" + str;
+						temp.append("\\u" + str);
+					} else {
+						temp.append(c);
+					}
+			}
+		}
 		return temp.toString();
 	}
 
