@@ -32,6 +32,8 @@ To match a special character, escape it with "\\"
 
 "\uhhhh" matches character with hexadecimal value 0xhhhh
 
+"\cx" matches the control character x where x is A-Z or a-z
+
 "\t" matches tab
 
 "\n" matches newline
