@@ -61,7 +61,15 @@ public class TestMatcher {
 			new Object[] {"\\x{}", "invalid hexadecimal value"},
 			new Object[] {"\\x{g}", "invalid hexadecimal value"},
 			new Object[] {"\\x{10ffffg}", "invalid hexadecimal value"},
-			new Object[] {"\\x{10ffff", "missing '}' after hexadecimal value"}
+			new Object[] {"\\x{10ffff", "missing '}' after hexadecimal value"},
+			new Object[] {"\\c", "missing control character"},
+			new Object[] {"\\c0", "invalid control character"},
+			new Object[] {"\\c\\0010", "invalid control character"},
+			new Object[] {"\\c\\0101", "invalid control character"},
+			new Object[] {"\\c@", "invalid control character"},
+			new Object[] {"\\c[", "invalid control character"},
+			new Object[] {"\\c`", "invalid control character"},
+			new Object[] {"\\c{", "invalid control character"}
 		};
 	}
 
@@ -137,6 +145,17 @@ public class TestMatcher {
 			new Object[] {"\\x{10FFFF}", "F" + U10FFFF + "asfd87" + U010000 + U10FFFF,
 				new String[] {U10FFFF, U10FFFF}}, 
 
+			new Object[] {"\\cA", "\u0001 \\cA\u0001 \u0001",
+				new String[] {"\u0001", "\u0001", "\u0001"}}, 
+			new Object[] {"\\cZ", "\u001A \\cZ\u001A \u001A",
+				new String[] {"\u001A", "\u001A", "\u001A"}}, 
+			new Object[] {"\\ca", "\u0001 \\ca\u0001 \u0001",
+				new String[] {"\u0001", "\u0001", "\u0001"}}, 
+			new Object[] {"\\cz", "\u001A \\cz\u001A \u001A",
+				new String[] {"\u001A", "\u001A", "\u001A"}}, 
+			new Object[] {"\\cc\\cRR", "\u0012\u0003 cR\\cc\\cR\u0003\u0012R",
+				new String[] {"\u0003\u0012R"}}, 
+			
 			new Object[] {"\\t\\t", "\t\t \\t\\t\t\t \t\t",
 				new String[] {"\t\t", "\t\t", "\t\t"}},
 			new Object[] {"\\t\\n", "\t\n \t\n\t\n \t\n",
