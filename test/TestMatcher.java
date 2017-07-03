@@ -10,6 +10,9 @@ import static org.junit.Assert.*;
 
 @RunWith(JUnitParamsRunner.class)
 public class TestMatcher {
+	private static final String U010000 = new String(Character.toChars(0x010000));
+	private static final String U1001A3 = new String(Character.toChars(0x1001a3));
+	private static final String U10FFFF = new String(Character.toChars(0x10ffff));
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
@@ -54,7 +57,11 @@ public class TestMatcher {
 			new Object[] {"\\08", "invalid octal value"},
 			new Object[] {"\\xfg", "invalid hexadecimal value"},
 			new Object[] {"\\ufffg", "invalid hexadecimal value"},
-			new Object[] {"\\u\\1111", "invalid hexadecimal value"}
+			new Object[] {"\\u\\1111", "invalid hexadecimal value"},
+			new Object[] {"\\x{}", "invalid hexadecimal value"},
+			new Object[] {"\\x{g}", "invalid hexadecimal value"},
+			new Object[] {"\\x{10ffffg}", "invalid hexadecimal value"},
+			new Object[] {"\\x{10ffff", "missing '}' after hexadecimal value"}
 		};
 	}
 
@@ -117,6 +124,18 @@ public class TestMatcher {
 				new String[] {"\uffff0", "\uffff0", "\uffff0"}}, 
 			new Object[] {"\\uFFFF0", "\uFFFF0 \uFFFF0000 \uFFFF0",
 				new String[] {"\uFFFF0", "\uFFFF0", "\uFFFF0"}}, 
+			new Object[] {"\\x{0}", "\u00000 \u00000000 \u00000",
+				new String[] {"\u0000", "\u0000", "\u0000"}}, 
+			new Object[] {"\\x{4e}", "N N4e N",
+				new String[] {"N", "N", "N"}}, 
+			new Object[] {"\\x{FFFF}", "\ufffff \uffffffff \uffff",
+				new String[] {"\uffff", "\uffff", "\uffff"}}, 
+			new Object[] {"\\x{10000}", U010000 + " " + U010000 + " " + U010000,
+				new String[] {U010000, U010000, U010000}}, 
+			new Object[] {"\\x{1001A3}", U1001A3 + U10FFFF + U1001A3,
+				new String[] {U1001A3, U1001A3}}, 
+			new Object[] {"\\x{10FFFF}", "F" + U10FFFF + "asfd87" + U010000 + U10FFFF,
+				new String[] {U10FFFF, U10FFFF}}, 
 
 			new Object[] {"\\t\\t", "\t\t \\t\\t\t\t \t\t",
 				new String[] {"\t\t", "\t\t", "\t\t"}},
