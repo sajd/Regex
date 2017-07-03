@@ -52,6 +52,8 @@ class Token {
 		if (pattern.isEmpty()) // no character after backslash
 			throw new InvalidRegexException("missing character after '\\'");
 
+		String hexStr = "";
+		int codePoint = 0;
 		char c = pattern.remove(0);
 		switch (c) {
 			case '0':
@@ -74,29 +76,51 @@ class Token {
 				tokens.add(new Token((char)octVal));
 				break;
 			case 'x':
-				/* Expects two digit hexadecimal value */
-				int hexVal = 0;
+				/* Expects unicode character as hexadecimal in one of two formats*/
+				hexStr = "";
 				try {
+					// remove hex digits from PATTERN and append them to HEXSTR
 					char c1 = pattern.remove(0);
-					char c2 = pattern.remove(0);
-					hexVal = Integer.parseInt(c1 + "" + c2, 16);
+					if (c1 == '{') {
+						// Expects {h...h} where h is a hex digit
+						int idx = pattern.indexOf('}');
+						if (idx == -1)
+							throw new InvalidRegexException("missing '}' after hexadecimal value");
+						while (idx > 0) {
+							hexStr += pattern.remove(0);
+							idx--;
+						}
+						pattern.remove(0);
+					} else {
+						// Expects hh where h is a hex digit
+						hexStr += c1;
+						hexStr += pattern.remove(0);
+					}
+					
+					// parse HEXSTR to char(s) and add corresponding tokens
+					codePoint = Integer.parseInt(hexStr, 16);
+					if (!Character.isValidCodePoint(codePoint))
+						throw new InvalidRegexException("invalid hexadecimal value");
+					char[] chars = Character.toChars(codePoint);
+					for (char c2 : chars)
+						tokens.add(new Token(c2));
 				} catch (IndexOutOfBoundsException | NumberFormatException e) {
 					throw new InvalidRegexException("invalid hexadecimal value");
 				}
-				tokens.add(new Token((char)hexVal));
+
 				break;
 			case 'u':
 				/* Expects four digit hexadecimal value */
-				String hexStr = "";
-				int hexInt = 0;
+				hexStr = "";
+				codePoint = 0;
 				try {
 					for (int i = 0; i < 4; i++)
 						hexStr += pattern.remove(0);
-					hexInt = Integer.parseInt(hexStr, 16);
+					codePoint = Integer.parseInt(hexStr, 16);
 				} catch (IndexOutOfBoundsException | NumberFormatException e) {
 					throw new InvalidRegexException("invalid hexadecimal value");
 				}
-				tokens.add(new Token((char)hexInt));
+				tokens.add(new Token((char)codePoint));
 				break;
 			case 't':
 				tokens.add(new Token('\t'));
