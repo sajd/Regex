@@ -122,6 +122,18 @@ class Token {
 				}
 				tokens.add(new Token((char)codePoint));
 				break;
+			case 'c':
+				/* Expects A-Z or a-z for ASCII control character. */
+				try {
+					char ctrlChar = pattern.remove(0);
+					if (ctrlChar < 'A' || ctrlChar > 'z' || (ctrlChar > 'Z' && ctrlChar < 'a'))
+						throw new InvalidRegexException("invalid control character");
+					// convert a-z to A-Z, then convert A-Z to 0x01 - 0x1A
+					tokens.add(new Token((char)(Character.toUpperCase(ctrlChar) - '@')));
+				} catch (IndexOutOfBoundsException e) {
+					throw new InvalidRegexException("missing control character");
+				}
+				break;
 			case 't':
 				tokens.add(new Token('\t'));
 				break;
