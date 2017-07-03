@@ -28,6 +28,8 @@ To match a special character, escape it with "\\"
 
 "\xhh" matches character with hexadecimal value 0xhh
 
+"\x{h...h} matches character with hexadecimal value 0xh...h from 0x000000 to 0x10FFFF
+
 "\uhhhh" matches character with hexadecimal value 0xhhhh
 
 "\t" matches tab
