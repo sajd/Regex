@@ -39,6 +39,12 @@ public class TestMatcher {
 	}
 
 	@Test
+	@Parameters(method = "charClassParams")
+	public void findCharClass(String pattern, String text, String[] expected) {
+		helper(pattern, text, expected);
+	}
+
+	@Test
 	@Parameters(method = "invalidParams")
 	public void invalidPatterns(String pattern, String message) {
 		thrown.expect(InvalidRegexException.class);
@@ -69,7 +75,40 @@ public class TestMatcher {
 			new Object[] {"\\c@", "invalid control character"},
 			new Object[] {"\\c[", "invalid control character"},
 			new Object[] {"\\c`", "invalid control character"},
-			new Object[] {"\\c{", "invalid control character"}
+			new Object[] {"\\c{", "invalid control character"},
+			new Object[] {"\\[[abc\\]\\)}", "character class not closed"},
+			new Object[] {"\\[abc\\Q]\\E\\[[x])}", "character class not closed"},
+			new Object[] {"[]", "character class not closed"},
+			new Object[] {"asdf[", "character class not closed"}
+		};
+	}
+
+	public Object[] charClassParams() {
+		return new Object[] {
+			new Object[] {"[a+]", "aa+",
+				new String[]{"a", "a", "+"}},
+			new Object[] {"[+a]", "aa+",
+				new String[]{"a", "a", "+"}},
+			new Object[] {"[\\Q].]\\E]", "]a].]",
+				new String[] {"]", "]", ".", "]"}},
+			new Object[] {"[a]", "aAaa",
+				new String[] {"a", "a", "a"}},
+			new Object[] {"[aca]", "acab",
+				new String[] {"a", "c", "a"}},
+			new Object[] {"[abc]", "[abc] ABc",
+				new String[] {"a", "b", "c", "c"}},
+			new Object[] {"\\[abc]", "[abc]abc",
+				new String[] {"[abc]"}},
+			new Object[] {"[\\t\\041]", "\t\041\\t041",
+				new String[] {"\t", "\041"}},
+			new Object[] {"\\[ab]", "\\[ab] a b []",
+				new String[] {"[ab]"}},
+			new Object[] {"gr[ae]y", "graey gray grey",
+				new String[] {"gray", "grey"}},
+			new Object[] {"li[cs]en[cs]e", "license lisence licence lisense licsencse",
+				new String[] {"license", "lisence", "licence", "lisense"}},
+			new Object[] {"[a\\\\]", "a\\\\",
+				new String[] {"a", "\\", "\\"}}
 		};
 	}
 
