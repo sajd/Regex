@@ -47,6 +47,14 @@ class Token {
 		type = TokenType.Literal;
 	}
 
+	public String toString() {
+		String s = "";
+		if (type == TokenType.Literal)
+			s += "\\";
+		s += c;
+		return s;
+	}
+
 	/* RETURNS an ArrayList of tokens that represent the input PATTERN. */
 	static ArrayList<Token> tokenize (String pat) throws InvalidRegexException{
 		ArrayList<Character> pattern = new ArrayList<Character>();
