@@ -120,7 +120,23 @@ public class TestMatcher {
 			new Object[] {"[ab[cd]]", "[ab[cd]]",
 				new String[] {"a", "b", "c", "d"}},
 			new Object[] {"[[a]]", "[[a]]aa",
-				new String[] {"a", "a", "a"}}
+				new String[] {"a", "a", "a"}},
+			new Object[] {"[+*]", "[*]",
+				new String[] {"*"}},
+			// char class with ranges
+			new Object[] {"[0-9]", "0 3 [0-9] a2b2",
+				new String[] {"0", "3", "0", "9", "2", "2"}},
+			new Object[] {"[b-g]", "abggfbzg",
+				new String[] {"b", "g", "g", "f", "b", "g"}},
+			new Object[] {"[\\x59-{]", "aT\u0058{Y|",
+				new String[] {"a", "{", "Y"}},
+			new Object[] {"[ag-iz]", "azbgkhiz",
+				new String[] {"a", "z", "g", "h", "i", "z"}},
+			new Object[] {"[a\\-d]", "[a\\-d]abcd",
+				new String[] {"a", "-", "d", "a", "d"}},
+			new Object[] {"[0-9a-fxA-FX]", "X039Afgx",
+				new String[] {"0", "3", "9", "A", "f", "x", "X"}}
+
 		};
 	}
 
