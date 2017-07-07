@@ -27,6 +27,13 @@ class Literal extends Matcher{
 
 	}
 
+	/* Create a Literal Matcher that matches the single character in TOKEN, whether or
+	 * not TOKEN.type has a value of LITERAL.*/
+	Literal (Token token) {
+		chars = new char[1];
+		chars[0] = token.getChar();
+	}
+
 	int matches (char[] text, int textIdx) {
 		if (textIdx < 0)
 			throw new IllegalArgumentException("negative textIdx");

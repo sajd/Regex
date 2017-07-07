@@ -5,6 +5,7 @@ import java.util.ArrayList;
 class CharClass extends Or {
 
 	CharClass(ArrayList<Token> tokens) {
+		Token tok;
 		if (tokens.size() == 0 || tokens.get(0).getType() != TokenType.ClassOpen)
 			throw new IllegalArgumentException("No open char class token");
 		tokens.remove(0);
@@ -12,8 +13,9 @@ class CharClass extends Or {
 		// Special cases for first character in character class
 		if (tokens.size() == 0)
 			throw new InvalidRegexException("character class not closed");
-		if (tokens.get(0).getType() == TokenType.ClassClose) {
-			tokens.get(0).toLiteral();
+		tok = tokens.get(0);
+		if (tok.getType() == TokenType.ClassClose) {
+			tok.toLiteral();
 		}
 
 		// Add the rest of the tokens to MATCHERS until encountering a CLASSCLOSE Token
@@ -21,7 +23,8 @@ class CharClass extends Or {
 			TokenType type = tokens.get(0).getType();
 			switch(type) {
 				case Literal:
-					matchers.add(new Literal(tokens));
+					tok = tokens.remove(0);
+					matchers.add(new Literal(tok));
 					break;
 				case ClassOpen:
 					matchers.add(new CharClass(tokens));
