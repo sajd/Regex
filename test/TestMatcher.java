@@ -135,8 +135,13 @@ public class TestMatcher {
 			new Object[] {"[a\\-d]", "[a\\-d]abcd",
 				new String[] {"a", "-", "d", "a", "d"}},
 			new Object[] {"[0-9a-fxA-FX]", "X039Afgx",
-				new String[] {"0", "3", "9", "A", "f", "x", "X"}}
-
+				new String[] {"0", "3", "9", "A", "f", "x", "X"}},
+			new Object[] {"[a\\\\-a]", "[a\\\\-a]`",
+				new String[] {"a", "\\", "\\", "a", "]", "`"}},
+			new Object[] {"[-x]", "zyx[-x]",
+				new String[] {"x", "-", "x"}},
+			new Object[] {"[\\\\-]", "\\-[]",
+				new String[] {"\\", "-"}}
 		};
 	}
 
