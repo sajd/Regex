@@ -52,11 +52,15 @@ public class TestMatcher {
 		Regex r = new Regex(pattern);
 	}
 
+	// Regex patterns that throw InvalidRegexException
 	public Object[] invalidParams() {
 		return new Object[] {
+			// backslash
 			new Object[] {"abc\\", "missing character after '\\'"},
+			// \Q...\E
 			new Object[] {"a\\\\Q\\E", "missing '\\Q' before '\\E'"},
 			new Object[] {"\\Qab\\Q*\\E*\\E", "missing '\\Q' before '\\E'"},
+			// octal and hexadecimal escapes
 			new Object[] {"\\0", "invalid octal value"},
 			new Object[] {"\\0a", "invalid octal value"},
 			new Object[] {"\\0\\", "invalid octal value"},
@@ -68,6 +72,7 @@ public class TestMatcher {
 			new Object[] {"\\x{g}", "invalid hexadecimal value"},
 			new Object[] {"\\x{10ffffg}", "invalid hexadecimal value"},
 			new Object[] {"\\x{10ffff", "missing '}' after hexadecimal value"},
+			// control characters
 			new Object[] {"\\c", "missing control character"},
 			new Object[] {"\\c0", "invalid control character"},
 			new Object[] {"\\c\\0010", "invalid control character"},
@@ -76,13 +81,15 @@ public class TestMatcher {
 			new Object[] {"\\c[", "invalid control character"},
 			new Object[] {"\\c`", "invalid control character"},
 			new Object[] {"\\c{", "invalid control character"},
+			// character classes
 			new Object[] {"\\[[abc\\]\\)}", "character class not closed"},
-			new Object[] {"\\[abc\\Q]\\E\\[[x])}", "character class not closed"},
+			new Object[] {"[abc\\Q]\\E\\[[x])}", "character class not closed"},
 			new Object[] {"[]", "character class not closed"},
 			new Object[] {"asdf[", "character class not closed"}
 		};
 	}
 
+	// Regex patterns that use character classes
 	public Object[] charClassParams() {
 		return new Object[] {
 			new Object[] {"[a+]", "aa+",
@@ -112,6 +119,7 @@ public class TestMatcher {
 		};
 	}
 
+	// Regex patterns that create Literal tokens
 	public Object[] literalParams() {
 		return new Object[] {
 			new Object[] {"t", "akjsf ie. adfi *()ll",
@@ -141,10 +149,13 @@ public class TestMatcher {
 	}
 
 
+	// Regex patterns that use escape sequences
 	public Object[] escapedParams() {
 		return new Object[] {
+			// backslash
 			new Object[] {"\\\\", "\\a\\a\\\\",
 				new String[] {"\\", "\\", "\\", "\\"}},
+			// octal values
 			new Object[] {"\\00", "\000 \000\000  \000",
 				new String[] {"\000", "\000", "\000", "\000"}},
 			new Object[] {"\\07", "\007 \007\007  \007",
@@ -159,6 +170,7 @@ public class TestMatcher {
 				new String[] {"\0400", "\0400", "\0400"}},
 			new Object[] {"\\01110", "\1110 \1110 \u0248  \1110", 
 				new String[] {"\1110", "\1110", "\1110"}},
+			// hexadecimal values
 			new Object[] {"\\x00", "\000 \000\000  \000",
 				new String[] {"\000", "\000", "\000", "\000"}},
 			new Object[] {"\\xFF", "\u00ff\uff00 \u00ff \u00ff\u00ff",
@@ -183,7 +195,7 @@ public class TestMatcher {
 				new String[] {U1001A3, U1001A3}}, 
 			new Object[] {"\\x{10FFFF}", "F" + U10FFFF + "asfd87" + U010000 + U10FFFF,
 				new String[] {U10FFFF, U10FFFF}}, 
-
+			// control characters
 			new Object[] {"\\cA", "\u0001 \\cA\u0001 \u0001",
 				new String[] {"\u0001", "\u0001", "\u0001"}}, 
 			new Object[] {"\\cZ", "\u001A \\cZ\u001A \u001A",
@@ -194,7 +206,7 @@ public class TestMatcher {
 				new String[] {"\u001A", "\u001A", "\u001A"}}, 
 			new Object[] {"\\cc\\cRR", "\u0012\u0003 cR\\cc\\cR\u0003\u0012R",
 				new String[] {"\u0003\u0012R"}}, 
-			
+			// non-printable/whitespace escaped characters
 			new Object[] {"\\t\\t", "\t\t \\t\\t\t\t \t\t",
 				new String[] {"\t\t", "\t\t", "\t\t"}},
 			new Object[] {"\\t\\n", "\t\n \t\n\t\n \t\n",
@@ -209,7 +221,7 @@ public class TestMatcher {
 				new String[] {"\u001b"}},
 			new Object[] {"\\e", "\u001b \u001b \u001b",
 				new String[] {"\u001b", "\u001b", "\u001b"}},
-			
+			// escaped special characters
 			new Object[] {"\\^", "a^^",
 				new String[] {"^", "^"}},
 			new Object[] {"\\$", "$$",
@@ -232,7 +244,7 @@ public class TestMatcher {
 				new String[] {"[", "["}},
 			new Object[] {"\\{", "\\{",
 				new String[] {"{"}},
-			
+			// \Q...\E
 			new Object[] {"\\Q\\E", "\\Q\\EQE",
 				new String[] {}},
 			new Object[] {"\\Q", "\\Q",

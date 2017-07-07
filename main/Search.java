@@ -6,7 +6,7 @@ public class Search {
 	private Regex pattern;
 	private char[] text;
 	private int pos;		// current search position in TEXT
-	private String match;
+	private String match;   // last match found
 
 	public Search(Regex r, String s) {
 		pattern = r;

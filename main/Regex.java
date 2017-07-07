@@ -4,7 +4,7 @@ import java.util.*;
 
 /* Represents a regular expression pattern. */
 public class Regex {
-	private ArrayList<Matcher> matchers;	// pieces of the regex
+	private ArrayList<Matcher> matchers;	// pieces of the regex pattern
 	
 	public Regex(String pattern) throws InvalidRegexException{
 		matchers = Matcher.parse(Token.tokenize(pattern));

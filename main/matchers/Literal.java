@@ -33,6 +33,8 @@ class Literal extends Matcher{
 		
 		int patternIdx = 0;
 
+		/* Iterate through CHARS and TEXT and check that corresponding characters
+		 * are the same. */
 		while (patternIdx < chars.length && textIdx < text.length) {
 			if (chars[patternIdx] != text[textIdx]) {
 				break;

@@ -21,13 +21,22 @@ public abstract class Matcher {
 			/* Uses the first element of TOKENS to determine which Matcher to construct and
 			 * add to MATCHERS. Throws an ILLEGALSTATEEXCEPTION if the token's type does
 			 * not match any of the cases. */
-			switch (tokens.get(0).getType()) {
+			TokenType type = tokens.get(0).getType();
+			switch (type) {
+				case ClassOpen:
+					matchers.add(new CharClass(tokens));
+					break;
+				case ClassClose:
+					// outside of the CharClass constructor, ']' is a literal
+					tokens.get(0).toLiteral();
+					break;
 				case Literal:
 					matchers.add(new Literal(tokens));
 					break;
 				default:
 					throw new IllegalStateException("Unexpected token type.");
 			}
+
 		}
 
 		return matchers;
