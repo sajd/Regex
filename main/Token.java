@@ -12,26 +12,21 @@ class Token {
 	private char c;
 	private TokenType type;
 
-	// Constructor for creating LITERAL tokens
-	Token(char c) {
+	Token(char c, boolean isLiteral) {
 		this.c = c;
-		type = TokenType.Literal;
-	}
-
-	// Constructor for creating all other tokens
-	Token(TokenType t) {
-		this.type = t;
-		switch (type) {
-			case ClassOpen:
-				this.c = '[';
-				break;
-			case ClassClose:
-				this.c = ']';
-				break;
-			case Literal:
-				throw new IllegalArgumentException("Must provide char for literal tokens.");
-			default:
-				throw new IllegalArgumentException("unrecognized token");
+		if (isLiteral) {
+			type = TokenType.Literal;
+		} else {
+			switch(c) {
+				case '[':
+					type = TokenType.ClassOpen;
+					break;
+				case ']':
+					type = TokenType.ClassClose;
+					break;
+				default:
+					throw new IllegalArgumentException("unrecognized special character");
+			}
 		}
 	}
 
@@ -66,16 +61,14 @@ class Token {
 			char c = pattern.remove(0);
 			switch(c) {
 				case '[':
-					tokens.add(new Token(TokenType.ClassOpen));
-					break;
 				case ']':
-					tokens.add(new Token(TokenType.ClassClose));
+					tokens.add(new Token(c, false));
 					break;
 				case '\\':
 					tokenizeEscapes(pattern, tokens);
 					break;
 				default:
-					tokens.add(new Token(c));
+					tokens.add(new Token(c, true));
 			}
 		}
 
@@ -109,7 +102,7 @@ class Token {
 
 				if (!valid)
 					throw new InvalidRegexException("invalid octal value");
-				tokens.add(new Token((char)octVal));
+				tokens.add(new Token((char)octVal, true));
 				break;
 			case 'x':
 				/* Expects unicode character as hexadecimal in one of two formats*/
@@ -139,7 +132,7 @@ class Token {
 						throw new InvalidRegexException("invalid hexadecimal value");
 					char[] chars = Character.toChars(codePoint);
 					for (char c2 : chars)
-						tokens.add(new Token(c2));
+						tokens.add(new Token(c2, true));
 				} catch (IndexOutOfBoundsException | NumberFormatException e) {
 					throw new InvalidRegexException("invalid hexadecimal value");
 				}
@@ -156,7 +149,7 @@ class Token {
 				} catch (IndexOutOfBoundsException | NumberFormatException e) {
 					throw new InvalidRegexException("invalid hexadecimal value");
 				}
-				tokens.add(new Token((char)codePoint));
+				tokens.add(new Token((char)codePoint, true));
 				break;
 			case 'c':
 				/* Expects A-Z or a-z for ASCII control character. */
@@ -165,28 +158,28 @@ class Token {
 					if (ctrlChar < 'A' || ctrlChar > 'z' || (ctrlChar > 'Z' && ctrlChar < 'a'))
 						throw new InvalidRegexException("invalid control character");
 					// convert a-z to A-Z, then convert A-Z to 0x01 - 0x1A
-					tokens.add(new Token((char)(Character.toUpperCase(ctrlChar) - '@')));
+					tokens.add(new Token((char)(Character.toUpperCase(ctrlChar) - '@'), true));
 				} catch (IndexOutOfBoundsException e) {
 					throw new InvalidRegexException("missing control character");
 				}
 				break;
 			case 't':
-				tokens.add(new Token('\t'));
+				tokens.add(new Token('\t', true));
 				break;
 			case 'n':
-				tokens.add(new Token('\n'));
+				tokens.add(new Token('\n', true));
 				break;
 			case 'r':
-				tokens.add(new Token('\r'));
+				tokens.add(new Token('\r', true));
 				break;
 			case 'f':
-				tokens.add(new Token('\f'));
+				tokens.add(new Token('\f', true));
 				break;
 			case 'a':
-				tokens.add(new Token('\u0007'));
+				tokens.add(new Token('\u0007', true));
 				break;
 			case 'e':
-				tokens.add(new Token('\u001B'));
+				tokens.add(new Token('\u001B', true));
 				break;
 			case 'Q':
 				/* turn characters in PATTERN into Literal tokens until finding
@@ -198,10 +191,10 @@ class Token {
 							pattern.remove(0);
 							break;
 						} else {
-							tokens.add(new Token(cc));
+							tokens.add(new Token(cc, true));
 						}
 					} else {
-						tokens.add(new Token(cc));
+						tokens.add(new Token(cc, true));
 					}
 				}
 				break;
@@ -209,7 +202,7 @@ class Token {
 				throw new InvalidRegexException("missing '\\Q' before '\\E'");
 			default:
 				/* If escaped character has no special meaning, treat as a literal. */
-				tokens.add(new Token(c));
+				tokens.add(new Token(c, true));
 		}
 	}
 }
