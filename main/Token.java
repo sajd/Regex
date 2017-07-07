@@ -2,7 +2,7 @@ package regex;
 
 import java.util.ArrayList;
 
-enum TokenType { Literal, ClassOpen, ClassClose }
+enum TokenType { Literal, ClassOpen, ClassClose, Range }
 
 /* Represent different kinds of symbols in a regular expression. The REGEX constructor 
  * transforms the String representation of a regex pattern into an ArrayList of tokens,
@@ -11,18 +11,26 @@ enum TokenType { Literal, ClassOpen, ClassClose }
 class Token {
 	private char c;
 	private TokenType type;
+	private boolean rangeBoundary;
 
 	Token(char c, boolean isLiteral) {
 		this.c = c;
 		if (isLiteral) {
 			type = TokenType.Literal;
+			rangeBoundary = true;
 		} else {
 			switch(c) {
+				case '-':
+					type = TokenType.Range;
+					rangeBoundary = false;
+					break;
 				case '[':
 					type = TokenType.ClassOpen;
+					rangeBoundary = false;
 					break;
 				case ']':
 					type = TokenType.ClassClose;
+					rangeBoundary = false;
 					break;
 				default:
 					throw new IllegalArgumentException("unrecognized special character");
@@ -36,6 +44,10 @@ class Token {
 
 	TokenType getType() {
 		return type;
+	}
+
+	boolean isRangeBoundary() {
+		return rangeBoundary;
 	}
 
 	void toLiteral() {
@@ -60,6 +72,9 @@ class Token {
 		while (!pattern.isEmpty()) {
 			char c = pattern.remove(0);
 			switch(c) {
+				case '-':
+					tokens.add(new Token(TokenType.Range));
+					break;
 				case '[':
 				case ']':
 					tokens.add(new Token(c, false));
