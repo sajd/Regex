@@ -92,6 +92,7 @@ public class TestMatcher {
 	// Regex patterns that use character classes
 	public Object[] charClassParams() {
 		return new Object[] {
+			// simple char classes
 			new Object[] {"[a+]", "aa+",
 				new String[]{"a", "a", "+"}},
 			new Object[] {"[+a]", "aa+",
@@ -115,7 +116,11 @@ public class TestMatcher {
 			new Object[] {"li[cs]en[cs]e", "license lisence licence lisense licsencse",
 				new String[] {"license", "lisence", "licence", "lisense"}},
 			new Object[] {"[a\\\\]", "a\\\\",
-				new String[] {"a", "\\", "\\"}}
+				new String[] {"a", "\\", "\\"}},
+			new Object[] {"[ab[cd]]", "[ab[cd]]",
+				new String[] {"a", "b", "c", "d"}},
+			new Object[] {"[[a]]", "[[a]]aa",
+				new String[] {"a", "a", "a"}}
 		};
 	}
 
