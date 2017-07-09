@@ -85,7 +85,8 @@ public class TestMatcher {
 			new Object[] {"\\[[abc\\]\\)}", "character class not closed"},
 			new Object[] {"[abc\\Q]\\E\\[[x])}", "character class not closed"},
 			new Object[] {"[]", "character class not closed"},
-			new Object[] {"asdf[", "character class not closed"}
+			new Object[] {"asdf[", "character class not closed"},
+			new Object[] {"[^]", "character class not closed"}
 		};
 	}
 
@@ -123,6 +124,8 @@ public class TestMatcher {
 				new String[] {"a", "a", "a"}},
 			new Object[] {"[+*]", "[*]",
 				new String[] {"*"}},
+			new Object[] {"[]x]", "[]x]",
+				new String[] {"]", "x", "]"}},
 			// char class with ranges
 			new Object[] {"[0-9]", "0 3 [0-9] a2b2",
 				new String[] {"0", "3", "0", "9", "2", "2"}},
@@ -153,7 +156,48 @@ public class TestMatcher {
 			new Object[] {"-", "---", 
 				new String[] {"-", "-", "-"}},
 			new Object[] {"---", "---",
-				new String[] {"---"}}
+				new String[] {"---"}},
+			new Object[] {"[6-]", "ab-66",
+				new String[] {"-", "6", "6"}},
+			new Object[] {"[c-a]", "a-abc", 
+				new String[] {"a", "-", "a", "c"}},
+			// char class with negation
+			new Object[] {"[^abc]", "[^abc] dcabB^",
+				new String[] {"[", "^", "]", " ", "d", "B", "^"}},
+			new Object[] {"a[^A]a", "AaaAaaa a a",
+				new String[] {"aaa", "a a"}},
+			new Object[] {"[^zz]", "\t\n ",
+				new String[] {"\t", "\n", " "}},
+			new Object[] {"[^x-z]", "azbcxy",
+				new String[] {"a", "b", "c"}},
+			new Object[] {"[^ad-z]", "abgIC",
+				new String[] {"b", "I", "C"}},
+			new Object[] {"[\\^0-9]", "[\\^0-9]a^b",
+				new String[] {"^", "0", "9", "^"}},
+			new Object[] {"[\\Q^ab\\Ec+]", "\\Q^ab\\Ec+c+",
+				new String[] {"^", "a", "b", "c", "+", "c", "+"}},
+			new Object[] {"[\\^-`]", "[\\^-`]^^_ab",
+				new String[] {"^", "`", "^", "^", "_"}},
+			new Object[] {"[]-^]", "[]-^], _abc",
+				new String[] {"]", "^", "]"}},
+			new Object[] {"[a^-a]", "[a^-a]_",
+				new String[] {"a", "^", "a", "_"}},
+			new Object[] {"[^^]", "^^^^",
+				new String[] {}},
+			new Object[] {"[x^]", "[x^]xyz`_",
+				new String[] {"x", "^", "x"}},
+			new Object[] {"[^]x^]", "[^]x]",
+				new String[] {"["}},
+			new Object[] {"[^-x][^x-]", "-a8\tbx",
+				new String[] {"a8", "\tb"}},
+			new Object[] {"[^[^ab]]", "abcz[^]0a\nb",
+				new String[] {"a", "b", "a", "b"}},
+			new Object[] {"q[^u]", "qu q q",
+				new String[] {"q "}},
+			new Object[] {"[^\\0101]\\0101", "A\\AB",
+				new String[] {"\\A"}},
+			new Object[] {"[ax]^[b-c]", "[x^cagxz]",
+				new String[] {"x^c"}}
 		};
 	}
 
