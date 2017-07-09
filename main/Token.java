@@ -73,8 +73,6 @@ class Token {
 			char c = pattern.remove(0);
 			switch(c) {
 				case '-':
-					tokens.add(new Token(TokenType.Range));
-					break;
 				case '[':
 				case ']':
 					tokens.add(new Token(c, false));
@@ -90,8 +88,8 @@ class Token {
 		return tokens;
 	}
 
-	/* Creates Literal tokens from characters in PATTERN. Removes those
-	 * characters from PATTERN and adds the tokens to TOKENS. */
+	/* Creates Literal tokens from escaped characters in PATTERN. Removes those
+	 * characters from PATTERN and adds the literal tokens to TOKENS. */
 	private static void tokenizeEscapes (ArrayList<Character> pattern, ArrayList<Token> tokens) {
 		if (pattern.isEmpty()) // no character after backslash
 			throw new InvalidRegexException("missing character after '\\'");
