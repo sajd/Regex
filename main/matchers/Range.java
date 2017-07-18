@@ -17,6 +17,8 @@ class Range extends Matcher {
 
 	/* Matches any character in between BEGIN and END, inclusive. */
 	int matches (char[] text, int start) {
+		if (start >= text.length)
+			return -1;
 		char c = text[start];
 		if (c >= begin && c <= end)
 			return start + 1;
