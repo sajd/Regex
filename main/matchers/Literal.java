@@ -5,13 +5,12 @@ import java.util.*;
 /* Matches sequence of literal characters. */
 class Literal extends Matcher{
 	private char[] chars;
-	private boolean negated;
 
 	/* Beginning with the first element, for every consecutive token in TOKENS that 
 	 * represents a literal character, adds that character to CHARS and removes the token.
 	 * Throws ILLEGALARGUMENTEXCEPTION if the first token does not represent a literal 
 	 * character. */
-	Literal (ArrayList<Token> tokens, boolean negated) {
+	Literal (ArrayList<Token> tokens) {
 		if (tokens.size() == 0 || tokens.get(0).getType() != TokenType.Literal)
 			throw new IllegalArgumentException("No character token");
 
@@ -25,25 +24,13 @@ class Literal extends Matcher{
 			chars[i] = tokens.get(0).getChar();
 			tokens.remove(0);
 		}
-
-		this.negated = negated;
 	}
 
 	/* Create a Literal Matcher that matches the single character in TOKEN, whether or
 	 * not TOKEN.type has a value of LITERAL.*/
-	Literal (Token token, boolean negated) {
+	Literal (Token token) {
 		chars = new char[1];
 		chars[0] = token.getChar();
-		this.negated = negated;
-	}
-
-	/* If no boolean argument is provided, NEGATED defaults to false. */
-	Literal (ArrayList<Token> tokens) {
-		this(tokens, false);
-	}
-
-	Literal (Token token) {
-		this(token, false);
 	}
 
 	int matches (char[] text, int textIdx) {
@@ -55,7 +42,7 @@ class Literal extends Matcher{
 		/* Iterate through CHARS and TEXT and check that corresponding characters
 		 * are the same. */
 		while (patternIdx < chars.length && textIdx < text.length) {
-			if ((chars[patternIdx] == text[textIdx]) == negated) {
+			if (chars[patternIdx] != text[textIdx]) {
 				break;
 			} else {
 				patternIdx++;

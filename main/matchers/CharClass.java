@@ -40,7 +40,7 @@ class CharClass extends Or {
 			next = tokens.get(1); // loop entered only if there exists at least 2 elements in tokens
 			if (next.getType() == TokenType.Range) {
 				try {
-					Range range = new Range(curr, tokens.get(2), negated);
+					Range range = new Range(curr, tokens.get(2));
 					tokens.remove(0);
 					tokens.remove(0);
 					tokens.remove(0);
@@ -52,7 +52,7 @@ class CharClass extends Or {
 				switch(curr.getType()) {
 					case Literal:
 						curr = tokens.remove(0);
-						matchers.add(new Literal(curr, negated));
+						matchers.add(new Literal(curr));
 						break;
 					case ClassOpen:
 						matchers.add(new CharClass(tokens));
@@ -69,6 +69,19 @@ class CharClass extends Or {
 			tokens.remove(0);
 		else
 			throw new InvalidRegexException("character class not closed");
+	}
+
+	@Override
+	public int matches(char[] text, int start) {
+		int result = super.matches(text, start);
+		if (negated) {
+			if (result == -1 && start < text.length)
+				return start + 1;
+			else
+				return -1;
+		} else {
+			return result;
+		}
 	}
 
 	public String toString() {
