@@ -27,8 +27,9 @@ public abstract class Matcher {
 					matchers.add(new CharClass(tokens));
 					break;
 				case Range:
+				case Caret:
 				case ClassClose:
-					// outside of the CharClass constructor, '-' and ']' is are literals
+					// outside of the CharClass constructor, '^', '-', and ']' are literals
 					tokens.get(0).toLiteral();
 					break;
 				case Literal:

@@ -3,6 +3,7 @@ package regex;
 import java.util.ArrayList;
 
 class CharClass extends Or {
+	private boolean negated;
 
 	CharClass(ArrayList<Token> tokens) {
 		Token curr, next;
@@ -15,6 +16,15 @@ class CharClass extends Or {
 		if (tokens.size() == 0)
 			throw new InvalidRegexException("character class not closed");
 		curr = tokens.get(0);
+		// set NEGATED to true if '^' is first token, false otherwise
+		if (curr.getType() == TokenType.Caret) {
+			tokens.remove(0);
+			curr = tokens.get(0);
+			negated = true;
+		} else {
+			negated = false;
+		}
+		// if ']' or '-' are first token, change them to literals
 		switch (curr.getType()) {
 			case ClassClose:
 			case Range:
@@ -30,7 +40,7 @@ class CharClass extends Or {
 			next = tokens.get(1); // loop entered only if there exists at least 2 elements in tokens
 			if (next.getType() == TokenType.Range) {
 				try {
-					Range range = new Range(curr, tokens.get(2));
+					Range range = new Range(curr, tokens.get(2), negated);
 					tokens.remove(0);
 					tokens.remove(0);
 					tokens.remove(0);
@@ -42,7 +52,7 @@ class CharClass extends Or {
 				switch(curr.getType()) {
 					case Literal:
 						curr = tokens.remove(0);
-						matchers.add(new Literal(curr));
+						matchers.add(new Literal(curr, negated));
 						break;
 					case ClassOpen:
 						matchers.add(new CharClass(tokens));
@@ -64,6 +74,8 @@ class CharClass extends Or {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append('[');
+		if (negated)
+			sb.append('^');
 		for (Matcher m : matchers)
 			sb.append(m.toString());
 		sb.append(']');
