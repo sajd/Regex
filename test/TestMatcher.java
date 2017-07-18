@@ -161,6 +161,8 @@ public class TestMatcher {
 				new String[] {"-", "6", "6"}},
 			new Object[] {"[c-a]", "a-abc", 
 				new String[] {"a", "-", "a", "c"}},
+			new Object[] {"[a-f][^a-f]", "afgb",
+				new String[] {"fg"}},
 			// char class with negation
 			new Object[] {"[^abc]", "[^abc] dcabB^",
 				new String[] {"[", "^", "]", " ", "d", "B", "^"}},
@@ -197,7 +199,9 @@ public class TestMatcher {
 			new Object[] {"[^\\0101]\\0101", "A\\AB",
 				new String[] {"\\A"}},
 			new Object[] {"[ax]^[b-c]", "[x^cagxz]",
-				new String[] {"x^c"}}
+				new String[] {"x^c"}},
+			new Object[] {"b[^c]", "bcbab",
+				new String[] {"ba"}}
 		};
 	}
 
@@ -226,6 +230,8 @@ public class TestMatcher {
 				          new String[] {"asd\000asd"}},
 			new Object[] {"asd\000asd", "asd\000asdasd\000asd",
 				          new String[] {"asd\000asd", "asd\000asd"}},
+			new Object[] {"abc", "cbaba",
+						  new String[] {}},
 			new Object[] {"asd\000asd", "lkklasd\000asdasdasd\000asdkll",
 				          new String[] {"asd\000asd", "asd\000asd"}}};
 	}
